@@ -67,9 +67,22 @@ function formatDateString(event){
  
 }
 
+
+function cleanText(text){
+  text = text.replace(/<br\/?>/gi,"\n");
+  text = text.replace(/<[^>]+>/g,"");
+  text = text.replace(/&nbsp;/," ");
+//  text = text.replace(/\n+/g,"\n");
+  text = text.replace(/^\n/g,"");
+  text = text.replace(/\n$/g,"");
+//  Logger.log(text);
+  return text;
+  
+}
+
 function addSlideForEvent(preso, event){
   // see https://developers.google.com/apps-script/reference/slides/slide
-  Logger.log(JSON.stringify(event, null, " "));
+//  Logger.log(JSON.stringify(event, null, " "));
   var title = event.summary;
   
   var pageWidth = preso.getPageWidth();
@@ -80,18 +93,20 @@ function addSlideForEvent(preso, event){
   }
   
   var description = event.description;
-  
+  var defaultImageId = "1wrYxafK58m01NcG6u5SYByTBC2doBx6g";
   var timeString = formatDateString(event);
   
   
   var image = false;
-  var imageId = false;
+  var imageId = defaultImageId;
+  var defaultImage = true;
   if (event.attachments && event.attachments.length > 0){
     var attachment = event.attachments[0];
     var url = attachment.fileUrl;
     if (attachment.title.match(/^.*\.(jpg|jpeg|png|gif)$/i)){
       image = url;    
       imageId = attachment.fileId;
+      defaultImage = false;
     }
   }
   Logger.log("**********************************");
@@ -115,26 +130,19 @@ function addSlideForEvent(preso, event){
   var titleShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, 10, pageWidth / 2, titleHeight);
   titleShape.getText().setText(title);
   titleShape.getText().getTextStyle().setBold(true).setFontSize(32).setForegroundColor(textColor).setFontFamily("Philosopher");
-    
-  Logger.log("~~~~~~~~~~~~~~~~~~~~~` DIM");
-  Logger.log(titleShape.getHeight());
-  Logger.log(titleLength);
-  Logger.log(numLines);
-  Logger.log(titleHeight);
-  
-  
+     
   var dateShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, titleHeight+ 10, pageWidth / 2, 50);
   dateShape.getText().setText(timeString);
   dateShape.getText().getTextStyle().setBold(true).setFontFamily("Georgia").setFontSize(18).setForegroundColor(textColor);
   
   var dateHeight = dateShape.getHeight();
-    Logger.log("~~~~~~~~~~~~~~~~~~~~~` DIM date");
-  Logger.log(dateShape.getHeight());
-  Logger.log(dateShape.getInherentHeight());
   
   var descShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, dateHeight + titleHeight, pageWidth / 2, 50);
+  description = cleanText(description);
   descShape.getText().setText(description);
   descShape.getText().getTextStyle().setBold(false).setFontFamily("Georgia").setForegroundColor(textColor).setFontSize(14);
+  
+  
   
   if(imageId){
     var imageBlob = DriveApp.getFileById(imageId);        
@@ -154,6 +162,31 @@ function addSlideForEvent(preso, event){
     imageShape.setLeft(0);
   }
   
+  if(!defaultImage && defaultImageId != imageId){
+    //1317 × 1043
+    var dtargetWidth = 128;
+    var dimageBlob = DriveApp.getFileById(defaultImageId);        
+    var dimageShape = newSlide.insertImage(dimageBlob);
+    var dimageWidth = dimageShape.getWidth();
+    var dimageHeight = dimageShape.getHeight();
+  //  var dtargetWidth = pageWidth / 2;
+    var dscaleFactor = dtargetWidth / dimageWidth;
+    
+    var dnewWidth = dscaleFactor * dimageWidth;
+    var dnewHeight = dscaleFactor * dimageHeight;
+    
+    dimageShape.setWidth(dnewWidth);
+    dimageShape.setHeight(dnewHeight);
+    
+//    imageShape.setTop((pageHeight - newHeight) / 2)
+    dimageShape.setTop((pageHeight - dnewHeight - 16) );
+
+    dimageShape.setLeft(0);  
+  }
+  
+  var locationShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, 16, pageHeight - 48, pageWidth / 2, 50);
+  locationShape.getText().setText("1st Floor Lau");
+  locationShape.getText().getTextStyle().setBold(false).setFontFamily("Audiowide").setForegroundColor(textColor).setFontSize(18);
   
   
 }
