@@ -26,7 +26,7 @@ function formatDateString(event){
   var startDay = dows[start.getDay()];
   var startDate = months[start.getMonth()] + " " +start.getDate();
   var startHours = start.getHours();
-  startHours++;
+//  startHours++;
   var startAmPm = "am";
   if (startHours > 12){
     startHours = startHours - 12;
@@ -34,7 +34,7 @@ function formatDateString(event){
   }
     
   var endHours = end.getHours();
-  endHours++;
+//  endHours++;
   var endAmPm = "am";
   if (endHours > 12){
     endHours = endHours - 12;
@@ -69,6 +69,9 @@ function formatDateString(event){
 
 
 function cleanText(text){
+  if(!text){
+    return "";
+  }
   text = text.replace(/<br\/?>/gi,"\n");
   text = text.replace(/<[^>]+>/g,"");
   text = text.replace(/&nbsp;/," ");
@@ -129,19 +132,20 @@ function addSlideForEvent(preso, event){
   
   var titleShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, 10, pageWidth / 2, titleHeight);
   titleShape.getText().setText(title);
-  titleShape.getText().getTextStyle().setBold(true).setFontSize(32).setForegroundColor(textColor).setFontFamily("Philosopher");
+  titleShape.getText().getTextStyle().setBold(true).setFontSize(36).setForegroundColor(textColor).setFontFamily("Philosopher");
      
   var dateShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, titleHeight+ 10, pageWidth / 2, 50);
   dateShape.getText().setText(timeString);
-  dateShape.getText().getTextStyle().setBold(true).setFontFamily("Georgia").setFontSize(18).setForegroundColor(textColor);
+  dateShape.getText().getTextStyle().setBold(true).setFontFamily("Georgia").setFontSize(24).setForegroundColor(textColor);
   
   var dateHeight = dateShape.getHeight();
   
-  var descShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, dateHeight + titleHeight, pageWidth / 2, 50);
-  description = cleanText(description);
-  descShape.getText().setText(description);
-  descShape.getText().getTextStyle().setBold(false).setFontFamily("Georgia").setForegroundColor(textColor).setFontSize(14);
-  
+  if(description && description.trim() != ""){
+    var descShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, pageWidth / 2, dateHeight + titleHeight, pageWidth / 2, 50);
+    description = cleanText(description);
+    descShape.getText().setText(description);
+    descShape.getText().getTextStyle().setBold(false).setFontFamily("Georgia").setForegroundColor(textColor).setFontSize(22);
+  }
   
   
   if(imageId){
@@ -186,7 +190,7 @@ function addSlideForEvent(preso, event){
   
   var locationShape = newSlide.insertShape(SlidesApp.ShapeType.TEXT_BOX, 16, pageHeight - 48, pageWidth / 2, 50);
   locationShape.getText().setText("1st Floor Lau");
-  locationShape.getText().getTextStyle().setBold(false).setFontFamily("Audiowide").setForegroundColor(textColor).setFontSize(18);
+  locationShape.getText().getTextStyle().setBold(false).setFontFamily("Audiowide").setForegroundColor(textColor).setFontSize(32);
   
   
 }
